@@ -27,6 +27,8 @@ public class BackgroundService extends Service
     private Context ctx;
     public String pActivity="";
 
+    public Handler mIncomingHandler;
+
     public IBinder onBind(Intent arg0)
     {
         return null;
@@ -46,7 +48,7 @@ public class BackgroundService extends Service
 
 
         //Start a sticky service
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     //Override function will be called when service is stopped
@@ -60,6 +62,8 @@ public class BackgroundService extends Service
     //Function to start the updating task
     private void startService()
     {
+        mIncomingHandler = new Handler(new IncomingHandlerCallback());
+
         //Call the updating task every 500ms
         timer.scheduleAtFixedRate(new UpdatingTask(), 0, 500);
         //Log here
@@ -67,22 +71,27 @@ public class BackgroundService extends Service
     }
 
 
+
     //The updating task class
     private class UpdatingTask extends TimerTask
     {
         public void run()
         {
-            Log.d(TAG,"Task is running");
-            //toastHandler.sendEmptyMessage(0);
+            Log.d(TAG, "Task is running");
+
+            //Make call to message handler
+            //mIncomingHandler.sendEmptyMessage(0);
         }
     }
 
-
-    private final Handler toastHandler = new Handler()
+    private class IncomingHandlerCallback implements Handler.Callback
     {
         @Override
-        public void handleMessage(Message msg)
+        public boolean handleMessage(Message message)
         {
+            // Handle message code
+            Log.d(TAG,"Message handled here");
+
             String activityOnTop;
 
             Log.d(TAG,"My function is getting called");
@@ -99,10 +108,14 @@ public class BackgroundService extends Service
             {
                 pActivity = activityOnTop.toString();
             }
-            else {
-                if (activityOnTop.equals(pActivity) || activityOnTop.equals("com.whatsapp.Conversation")) {
+            else
+            {
+                if (activityOnTop.equals(pActivity) || activityOnTop.equals("com.whatsapp.Conversation"))
+                {
 
-                } else {
+                }
+                else
+                {
                     Intent i = new Intent(BackgroundService.this, MainActivity.class);
                     i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(i);
@@ -111,9 +124,9 @@ public class BackgroundService extends Service
 
                 }
             }
+
+            return true;
         }
-
-
-    };
+    }
 
 }
