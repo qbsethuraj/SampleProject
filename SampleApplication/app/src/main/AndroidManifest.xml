@@ -18,4 +18,5 @@
         <service android:name=".BackgroundService" ></service>
     </application>
 
+    <uses-permission android:name="android.permission.GET_TASKS" ></uses-permission>
 </manifest>
