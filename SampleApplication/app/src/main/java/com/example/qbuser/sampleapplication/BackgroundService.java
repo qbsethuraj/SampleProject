@@ -23,11 +23,10 @@ public class BackgroundService extends Service
     private String TAG="sampleapp";
 
     private static Timer timer = new Timer();
-    public Boolean userAuth = false;
-    private Context ctx;
     public String pActivity="";
-
     public Handler mIncomingHandler;
+
+    public boolean IsAuthenticated=false;
 
     public IBinder onBind(Intent arg0)
     {
@@ -48,7 +47,7 @@ public class BackgroundService extends Service
 
 
         //Start a sticky service
-        return START_NOT_STICKY;
+        return START_STICKY;
     }
 
     //Override function will be called when service is stopped
@@ -80,7 +79,7 @@ public class BackgroundService extends Service
             Log.d(TAG, "Task is running");
 
             //Make call to message handler
-            //mIncomingHandler.sendEmptyMessage(0);
+            mIncomingHandler.sendEmptyMessage(0);
         }
     }
 
@@ -104,26 +103,37 @@ public class BackgroundService extends Service
             ActivityManager.RunningTaskInfo ar = RunningTask.get(0);
             activityOnTop=ar.topActivity.getClassName();
 
-            if(activityOnTop.equals("com.whatsapp.Conversation"))
+            Log.d(TAG,"Activity on top - "+activityOnTop );
+
+            if(activityOnTop.equals("com.whatsapp.HomeActivity"))
             {
                 pActivity = activityOnTop.toString();
-            }
-            else
-            {
-                if (activityOnTop.equals(pActivity) || activityOnTop.equals("com.whatsapp.Conversation"))
-                {
 
-                }
-                else
+                //If the user is not authenticated
+                if(!IsAuthenticated)
                 {
+                    //Launch the pass code activity
                     Intent i = new Intent(BackgroundService.this, MainActivity.class);
                     i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(i);
-                    Toast.makeText(BackgroundService.this, pActivity, 1).show();
-                    pActivity = activityOnTop.toString();
-
                 }
             }
+//            else
+//            {
+//                if (activityOnTop.equals(pActivity) || activityOnTop.equals("com.whatsapp.HomeActivity"))
+//                {
+//
+//                }
+//                else
+//                {
+//                    Intent i = new Intent(BackgroundService.this, MainActivity.class);
+//                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    startActivity(i);
+//                    Toast.makeText(BackgroundService.this, pActivity,Toast.LENGTH_SHORT).show();
+//                    pActivity = activityOnTop.toString();
+//
+//                }
+//            }
 
             return true;
         }
